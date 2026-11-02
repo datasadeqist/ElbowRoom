@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIdentifier</key><string>io.github.datasadeqist.spareroom</string>
-	<key>CFBundleName</key><string>SpareRoom</string>
-	<key>CFBundleDisplayName</key><string>SpareRoom</string>
-	<key>CFBundleExecutable</key><string>SpareRoom</string>
+	<key>CFBundleIdentifier</key><string>io.github.datasadeqist.elbowroom</string>
+	<key>CFBundleName</key><string>ElbowRoom</string>
+	<key>CFBundleDisplayName</key><string>ElbowRoom</string>
+	<key>CFBundleExecutable</key><string>ElbowRoom</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
 	<key>CFBundleShortVersionString</key><string>1.0.0</string>
 	<key>CFBundleVersion</key><string>1</string>

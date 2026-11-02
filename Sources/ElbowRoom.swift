@@ -1,11 +1,11 @@
-// SpareRoom: a menu bar storage meter for macOS with a native glass panel.
+// ElbowRoom: a menu bar storage meter for macOS with a native glass panel.
 // Shows free space and how much more can be freed, turns red when space runs low,
 // and cleans with the bundled cleanup.sh (which only removes things that rebuild themselves).
 import AppKit
 import SwiftUI
 import ServiceManagement
 
-let logPath = ("~/Library/Logs/SpareRoom.log" as NSString).expandingTildeInPath
+let logPath = ("~/Library/Logs/ElbowRoom.log" as NSString).expandingTildeInPath
 let script = Bundle.main.path(forResource: "cleanup", ofType: "sh") ?? ""
 let GB: Int64 = 1_000_000_000
 
@@ -40,11 +40,11 @@ let categories: [Category] = [
     @AppStorage("projectDir") var projectDir = ""   // folder with the user's git projects; empty = off
     var hidePanel: () -> Void = {}
     @AppStorage("useMole") var useMole = false
-    /// Open at login, through the system's Login Items (shown under SpareRoom in System Settings).
+    /// Open at login, through the system's Login Items (shown under ElbowRoom in System Settings).
     @Published var openAtLogin = SMAppService.mainApp.status == .enabled
     func setOpenAtLogin(_ on: Bool) {
         do { if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
-        catch { NSLog("SpareRoom: login item change failed: \(error.localizedDescription)") }
+        catch { NSLog("ElbowRoom: login item change failed: \(error.localizedDescription)") }
         openAtLogin = SMAppService.mainApp.status == .enabled
     }
     @AppStorage("skipped") var skippedRaw = ""          // categories the user turned off
@@ -291,7 +291,7 @@ struct Panel: View {
             PlainRow(title: "Storage Settings…") {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.settings.Storage")!)
             }
-            PlainRow(title: "Quit SpareRoom") { NSApp.terminate(nil) }
+            PlainRow(title: "Quit ElbowRoom") { NSApp.terminate(nil) }
         }
         .padding(6)
         .frame(width: 310)
@@ -433,7 +433,7 @@ struct Panel: View {
                     ForEach([10, 20, 30, 50, 100], id: \.self) { Text("\($0) GB").tag($0) }
                 }.labelsHidden().fixedSize().controlSize(.small)
             }
-            toggleRow("power", "Open at login", "Start SpareRoom when you log in.",
+            toggleRow("power", "Open at login", "Start ElbowRoom when you log in.",
                       Binding(get: { m.openAtLogin }, set: { m.setOpenAtLogin($0) }))
             toggleRow("arrow.triangle.2.circlepath", "Clean automatically",
                       "When space runs low, at most every 6 hours.", $m.autoClean)

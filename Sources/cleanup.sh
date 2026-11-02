@@ -1,5 +1,5 @@
 #!/bin/bash
-# SpareRoom cleanup. Only removes things that rebuild themselves or hold no unsaved work,
+# ElbowRoom cleanup. Only removes things that rebuild themselves or hold no unsaved work,
 # and never reads macOS-protected folders unless asked:
 #   PROJECT_DIR=/path  folder with your git projects (macOS may ask once if it is on the Desktop)
 #   MOLE=1             Mole deep clean, if Mole is installed (may ask for other apps' data)
@@ -28,7 +28,7 @@ caches() {
 # 2. Log files older than a week.
 logs() {
   if [ "$DRY" = 1 ]; then est logs "$(old_files "$H/Library/Logs" -print0 | xargs -0 du -k 2>/dev/null | sumkb)"
-  else step logs; old_files "$H/Library/Logs" ! -name SpareRoom.log -delete; fi
+  else step logs; old_files "$H/Library/Logs" ! -name ElbowRoom.log -delete; fi
 }
 
 # 3. Download caches of developer tools (npm, npx, Homebrew, pnpm).
@@ -124,7 +124,7 @@ mole() {
   else step mole; mo clean </dev/null >/dev/null 2>&1; fi
 }
 
-echo "== SpareRoom $(date '+%F %T') $([ "$DRY" = 1 ] && echo PREVIEW || echo "CLEAN $CATS")"
+echo "== ElbowRoom $(date '+%F %T') $([ "$DRY" = 1 ] && echo PREVIEW || echo "CLEAN $CATS")"
 ALL="caches logs devcaches xcode simulators worktrees webbuild deps mole"
 RUN=""; for c in $ALL; do want $c && RUN="$RUN $c"; done
 echo "@total $(echo $RUN | wc -w | tr -d ' ')"
