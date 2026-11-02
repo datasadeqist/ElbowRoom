@@ -57,7 +57,8 @@ let categories: [Category] = [
     @Published var cleanedKeys: Set<String> = []
     @Published var cleanTotal = 0
     @Published var finished = false
-    var justFinished = false                // menu bar shows "Freed X" for 30 s         // shows the "Freed X" banner until the next clean
+    var justFinished = false
+    @Published var freedFrom = ""           // "From old logs and download caches"                // menu bar shows "Freed X" for 30 s         // shows the "Freed X" banner until the next clean
     @Published var result = ""
     @Published var showSettings = false
     var onChange: () -> Void = {}
@@ -181,6 +182,9 @@ let categories: [Category] = [
         }) { [self] in
             cleaning = false; step = ""; stepKey = ""; refreshFree()
             result = (auto ? "Cleaned automatically. " : "") + "Freed \(fmt(max(0, free - before)))"
+            let names = categories.filter { cleanedKeys.contains($0.key) }.map { $0.name.lowercased() }
+            freedFrom = names.isEmpty ? "" : "From " + ListFormatter.localizedString(byJoining: names)
+            for k in cleanedKeys { sizes[k] = 0 }   // already freed; the re-check below fills in what is left
             finished = true; justFinished = true; onChange()
             DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in self?.justFinished = false; self?.onChange() }
             scannedAt = nil; scan()
@@ -352,7 +356,7 @@ struct Panel: View {
                 let on = m.isOn(c.key)
                 Row(icon: c.icon, on: on, title: c.name, subtitle: c.help,
                     action: m.cleaning ? nil : { m.toggle(c.key) }) {
-                    if (m.cleaning || m.finished) && m.cleanedKeys.contains(c.key) {
+                    if m.cleaning && m.cleanedKeys.contains(c.key) {
                         Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                             .transition(.scale.combined(with: .opacity))
                     } else if m.cleaning && m.stepKey == c.key {
@@ -385,8 +389,10 @@ struct Panel: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 18)).foregroundStyle(.green)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Done").font(.system(size: 13, weight: .semibold))
-                        Text(m.result).font(.system(size: 11)).foregroundStyle(.secondary)
+                        Text(m.result).font(.system(size: 13, weight: .semibold))
+                        if !m.freedFrom.isEmpty {
+                            Text(m.freedFrom).font(.system(size: 11)).foregroundStyle(.secondary)
+                        }
                     }
                     Spacer()
                 }
