@@ -83,6 +83,10 @@ To remove it: `make uninstall`.
 
 Each run writes its output to `~/Library/Logs/SpareRoom.log`.
 
+## Acknowledgements
+
+- [Mole](https://github.com/tw93/Mole) by [tw93](https://github.com/tw93): a disk cleaner for macOS whose cleanup categories inspired several of SpareRoom's. When you turn on *Mole deep clean* in Options and have Mole installed, SpareRoom runs its `mo clean` command. SpareRoom does not include or change any Mole code and works fully without it. Mole is a separate project under the GPL-3.0 license, and SpareRoom is not affiliated with it.
+
 ## License
 
 MIT
