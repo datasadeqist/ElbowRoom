@@ -264,6 +264,8 @@ struct PlainRow: View {   // like "Wi-Fi Settings…" at the bottom of the Wi-Fi
     }
 }
 
+let shadowRoom: CGFloat = 24   // transparent margin so the shadow is not clipped
+
 struct Panel: View {
     @ObservedObject var m: Model
 
@@ -282,6 +284,9 @@ struct Panel: View {
         .padding(6)
         .frame(width: 310)
         .glassEffect(.regular, in: .rect(cornerRadius: 16))
+        // The shadow follows the rounded glass; the window's own shadow would be square.
+        .shadow(color: .black.opacity(0.22), radius: 14, y: 6)
+        .padding(shadowRoom)
     }
 
     func header(_ t: String, _ trailing: String = "") -> some View {
@@ -464,7 +469,7 @@ final class AnchoredPanel: NSPanel {
         host.view.wantsLayer = true; host.view.layer?.backgroundColor = .clear
         panel = AnchoredPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
         panel.contentViewController = host
-        panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
+        panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = false
         panel.level = .statusBar; panel.isMovable = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
 
@@ -521,8 +526,10 @@ final class AnchoredPanel: NSPanel {
         model.refreshFree(); model.scanIfStale(); model.showSettings = false
         let icon = w.convertToScreen(b.convert(b.bounds, to: nil))
         let width: CGFloat = 310
-        let right = min(icon.midX + width / 2, screen.visibleFrame.maxX - 6)
-        panel.topRight = NSPoint(x: max(right, screen.visibleFrame.minX + width + 6), y: screen.visibleFrame.maxY - 4)
+        // The window is shadowRoom bigger on every side than the visible glass.
+        let right = min(icon.midX + width / 2, screen.visibleFrame.maxX - 6) + shadowRoom
+        panel.topRight = NSPoint(x: max(right, screen.visibleFrame.minX + width + 6 + shadowRoom),
+                                 y: screen.visibleFrame.maxY - 4 + shadowRoom)
         panel.setFrame(NSRect(origin: .zero, size: panel.contentViewController!.preferredContentSize), display: false)
         panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
