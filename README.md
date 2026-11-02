@@ -20,25 +20,25 @@ A tiny macOS menu bar app that shows how much disk space you have, how much more
 - **Storage**: free space, a bar split into *used*, *can be freed* and *empty*, and a forecast such as "Filling about 12 GB a day, full in about 4 days".
 - **Can be freed**: one row per kind of clutter, with its size and a one-line explanation. Click a row to include or skip it; SpareRoom remembers your choice. Rows with nothing to clean are hidden.
 - **Free Up**: cleans the rows you have on, with a progress bar, a check mark per row, and a "Freed X GB" summary at the end.
-- **Options**: warning level, clean automatically when space runs low, your coding projects folder, and an optional [Mole](https://github.com/tw93/Mole) deep clean.
+- **Options**: warning level, open at login, clean automatically when space runs low, your coding projects folder, and an optional [Mole](https://github.com/tw93/Mole) deep clean.
 
 ## What it cleans
 
 | Row | What is removed | Why it is safe | Skipped when |
 |---|---|---|---|
-| App caches | Files in `~/Library/Caches` not used for 7 days (Apple's own caches are left alone) | Apps rebuild caches | — |
+| App caches | Files in `~/Library/Caches` not changed in 7 days (Apple's own caches are left alone) | Apps rebuild caches | — |
 | Old logs | Files in `~/Library/Logs` older than 7 days | Diagnostic records only | — |
 | Download caches | npm, npx, Homebrew and pnpm caches | Downloaded again when needed | something is running from the npx cache |
 | Xcode builds | `~/Library/Developer/Xcode/DerivedData` | Rebuilt on the next build. Archives are never touched | Xcode or a build is running |
-| iPhone simulators | Apps and data inside simulators, plus simulators for iOS versions you no longer have | The simulators stay and start fresh | a simulator is running |
-| Website builds | `.next` build folders in your projects and in GitHub Actions runner folders | Rebuilt on the next build | a process is running in that project (a dev server) |
+| iPhone simulators | Apps and data inside all simulators, plus simulators for OS versions you no longer have | The simulators stay and start fresh | a simulator is running |
+| Website builds | `.next` build folders next to a `package.json`, in your projects and in GitHub Actions runner folders | Rebuilt on the next build | a process is running in that project (a dev server) |
 | Packages in idle projects | `node_modules` in project copies (git worktrees) untouched for 7 days | `npm install` brings them back | something is running inside |
 | Old project copies | Git worktrees with nothing left to keep (below) | All work is committed and pushed | see below |
 | Mole deep clean (optional) | Whatever `mo clean` removes | Mole's own safety rules | off unless you turn it on |
 
 ### Old project copies (git worktrees)
 
-Tools like Claude Code, Cursor and Codex create a git worktree per task, and each one can hold gigabytes of builds and packages. SpareRoom removes a worktree only when **all** of these are true:
+Coding agents such as Claude Code can create a git worktree per task, and each one can hold gigabytes of builds and packages. SpareRoom removes a worktree only when **all** of these are true:
 
 - every change is committed, and the commit is on a remote branch (it runs `git fetch` first)
 - no process is running inside it
@@ -50,7 +50,7 @@ Only the extra working folder is removed. Branches and commits stay, and Claude 
 
 ## Permissions
 
-SpareRoom asks for nothing by default. It does not read folders macOS protects, sends no notifications and makes no network requests of its own.
+SpareRoom asks for nothing by default. It does not read folders macOS protects and sends no notifications. Its only network access is `git fetch` in your projects, right before it removes old project copies, to confirm your commits are pushed. It collects no data.
 
 - **Your projects folder**: picked by you in a standard Open dialog. If it is in Desktop or Documents, macOS may ask once.
 - **Mole deep clean** (off by default): Mole reads other apps' data folders, so macOS may ask for access.
@@ -62,9 +62,10 @@ Needs macOS 26 (Tahoe) or later and the Xcode command line tools (`xcode-select 
 ```sh
 git clone https://github.com/datasadeqist/SpareRoom.git
 cd SpareRoom
-make install      # builds SpareRoom.app into ~/Applications and opens it
-make login        # optional: start it when you log in
+make install      # builds SpareRoom.app (Apple silicon and Intel) into ~/Applications and opens it
 ```
+
+To start it when you log in, turn on **Open at login** in Options. It then appears under System Settings → General → Login Items.
 
 `make` signs the app ad-hoc, which is all an app you build yourself needs. If you have a valid Apple Development certificate, `make install SIGN="Apple Development: Your Name (TEAMID)"` makes macOS remember the permissions you grant across rebuilds. Do not use a revoked certificate: macOS blocks apps signed with one as malware.
 
@@ -82,6 +83,10 @@ To remove it: `make uninstall`.
   ```
 
 Each run writes its output to `~/Library/Logs/SpareRoom.log`.
+
+## Contributing
+
+Issues and pull requests are welcome. SpareRoom's rule is that it never deletes anything that cannot be rebuilt or downloaded again, or that holds work not yet committed and pushed. Please keep new cleanup steps to that rule, and make them skip anything that is in use.
 
 ## Acknowledgements
 

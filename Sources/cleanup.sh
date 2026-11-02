@@ -66,10 +66,13 @@ simulators() {
 #    Skipped where a process is running inside the project (e.g. a dev server).
 cwds() { lsof -a -d cwd -Fn 2>/dev/null | sed -n 's/^n//p'; }
 webbuild() {
-  local list=""; busy Runner.Worker || list=$(find "$H"/actions-runner*/_work -maxdepth 5 -type d -name .next -prune 2>/dev/null)
+  local list=""
+  busy Runner.Worker || list=$(find "$H"/actions-runner*/_work -maxdepth 5 -type d -name .next -prune 2>/dev/null |
+    while read -r c; do [ -f "${c%/.next}/package.json" ] && echo "$c"; done)
   if [ "$CODE" = 1 ] && [ -d "$PROJ" ]; then
     local used; used=$(cwds)
     while read -r c; do
+      [ -f "${c%/.next}/package.json" ] || continue   # only real JavaScript builds
       echo "$used" | grep -qF "${c%/.next}" || list+=$'\n'"$c"
     done < <(find "$PROJ" -maxdepth 6 \( -name node_modules -o -name .git \) -prune -o -type d -name .next -print -prune 2>/dev/null)
   fi

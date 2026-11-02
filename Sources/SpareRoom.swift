@@ -3,6 +3,7 @@
 // and cleans with the bundled cleanup.sh (which only removes things that rebuild themselves).
 import AppKit
 import SwiftUI
+import ServiceManagement
 
 let logPath = ("~/Library/Logs/SpareRoom.log" as NSString).expandingTildeInPath
 let script = Bundle.main.path(forResource: "cleanup", ofType: "sh") ?? ""
@@ -13,7 +14,7 @@ func fmt(_ b: Int64) -> String { ByteCountFormatter.string(fromByteCount: b, cou
 struct Category { let key, name, icon, help: String; var needsCode = false }
 let categories: [Category] = [
     .init(key: "caches", name: "App caches", icon: "square.stack.3d.up.fill",
-          help: "Temporary files apps keep to open faster. Only ones unused for a week. Apps rebuild them."),
+          help: "Temporary files apps keep to open faster. Only ones not changed for a week. Apps rebuild them."),
     .init(key: "logs", name: "Old logs", icon: "doc.text.fill",
           help: "Diagnostic records older than a week. Nothing you made."),
     .init(key: "devcaches", name: "Download caches", icon: "shippingbox.fill",
@@ -39,6 +40,13 @@ let categories: [Category] = [
     @AppStorage("projectDir") var projectDir = ""   // folder with the user's git projects; empty = off
     var hidePanel: () -> Void = {}
     @AppStorage("useMole") var useMole = false
+    /// Open at login, through the system's Login Items (shown under SpareRoom in System Settings).
+    @Published var openAtLogin = SMAppService.mainApp.status == .enabled
+    func setOpenAtLogin(_ on: Bool) {
+        do { if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
+        catch { NSLog("SpareRoom: login item change failed: \(error.localizedDescription)") }
+        openAtLogin = SMAppService.mainApp.status == .enabled
+    }
     @AppStorage("skipped") var skippedRaw = ""          // categories the user turned off
     @AppStorage("lastAuto") var lastAuto = 0.0
     @AppStorage("samples") var samplesRaw = ""          // "time:free;..." for the trend
@@ -425,6 +433,8 @@ struct Panel: View {
                     ForEach([10, 20, 30, 50, 100], id: \.self) { Text("\($0) GB").tag($0) }
                 }.labelsHidden().fixedSize().controlSize(.small)
             }
+            toggleRow("power", "Open at login", "Start SpareRoom when you log in.",
+                      Binding(get: { m.openAtLogin }, set: { m.setOpenAtLogin($0) }))
             toggleRow("arrow.triangle.2.circlepath", "Clean automatically",
                       "When space runs low, at most every 6 hours.", $m.autoClean)
             Row(icon: "chevron.left.forwardslash.chevron.right", on: !m.projectDir.isEmpty, title: "Coding projects",
