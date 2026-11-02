@@ -2,15 +2,20 @@
 
 A tiny macOS menu bar app that shows how much disk space you have, how much more you could free, and frees it in one click. It only removes things that rebuild themselves or that hold no unsaved work.
 
-```
-💽 86 GB (+14 GB)
-```
+<p align="center">
+  <img src="docs/screenshots/hero.png" width="420" alt="SpareRoom panel under its menu bar item, showing 88 GB free and 14 GB that can be freed">
+</p>
 
 - The number is your free space. It turns **red** when you drop below your warning level (30 GB by default).
 - The badge is how much more SpareRoom can free right now.
 - Click it for a native glass panel with the details and a **Free Up** button.
 
 ## What the panel shows
+
+<p align="center">
+  <img src="docs/screenshots/overview.png" alt="Three panel states: checking what can be freed, cleaning with a progress bar, and the options view">
+  <br><sub>Checking what can be freed · Cleaning, step by step · Options</sub>
+</p>
 
 - **Storage**: free space, a bar split into *used*, *can be freed* and *empty*, and a forecast such as "Filling about 12 GB a day, full in about 4 days".
 - **Can be freed**: one row per kind of clutter, with its size and a one-line explanation. Click a row to include or skip it; SpareRoom remembers your choice. Rows with nothing to clean are hidden.
